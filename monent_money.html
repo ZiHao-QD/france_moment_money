@@ -60,58 +60,69 @@ button {
 </div>
 
 <script>
-function numberToFrench(n) {
-    const units = ["zéro","un","deux","trois","quatre","cinq","six","sept","huit","neuf"];
-    const teens = ["dix","onze","douze","treize","quatorze","quinze","seize","dix-sept","dix-huit","dix-neuf"];
-    const tens = ["","dix","vingt","trente","quarante","cinquante","soixante","soixante","quatre-vingt","quatre-vingt"];
-
-    function underHundred(num) {
-        if (num < 10) return units[num];
-        if (num < 20) return teens[num - 10];
-        let t = Math.floor(num / 10);
-        let u = num % 10;
-        if (t === 7 || t === 9) return tens[t] + "-" + teens[u];
-        if (u === 0) return tens[t] + (t === 8 ? "s" : "");
-        return tens[t] + "-" + units[u];
-    }
-
-    function underThousand(num) {
-        let h = Math.floor(num / 100);
-        let r = num % 100;
-        let res = "";
-        if (h > 0) {
-            res = h === 1 ? "cent" : units[h] + " cent";
-            if (r === 0 && h > 1) res += "s";
+    function numberToFrench(n) {
+        const units = ["zéro","un","deux","trois","quatre","cinq","six","sept","huit","neuf"];
+        const teens = ["dix","onze","douze","treize","quatorze","quinze","seize","dix-sept","dix-huit","dix-neuf"];
+        const tens = ["","dix","vingt","trente","quarante","cinquante","soixante","soixante","quatre-vingt","quatre-vingt"];
+    
+        function underHundred(num) {
+            if (num < 10) return units[num];
+            if (num < 20) return teens[num - 10];
+            let t = Math.floor(num / 10);
+            let u = num % 10;
+            if (t === 7 || t === 9) return tens[t] + "-" + teens[u];
+            if (u === 0) return tens[t] + (t === 8 ? "s" : "");
+            return tens[t] + "-" + units[u];
         }
-        if (r > 0) res += (res ? " " : "") + underHundred(r);
-        return res;
+    
+        function underThousand(num) {
+            let h = Math.floor(num / 100);
+            let r = num % 100;
+            let res = "";
+            if (h > 0) {
+                res = h === 1 ? "cent" : units[h] + " cent";
+                if (r === 0 && h > 1) res += "s";
+            }
+            if (r > 0) res += (res ? " " : "") + underHundred(r);
+            return res;
+        }
+    
+        if (n === 0) return "zéro";
+        if (n > 999999999999) return "nombre trop grand";
+    
+        let milliards = Math.floor(n / 1_000_000_000);
+        let millions  = Math.floor((n % 1_000_000_000) / 1_000_000);
+        let thousands = Math.floor((n % 1_000_000) / 1000);
+        let unitsPart = n % 1000;
+    
+        let parts = [];
+    
+        if (milliards)
+            parts.push(milliards === 1 ? "un milliard" : underThousand(milliards) + " milliards");
+    
+        if (millions)
+            parts.push(millions === 1 ? "un million" : underThousand(millions) + " millions");
+    
+        if (thousands)
+            parts.push(thousands === 1 ? "mille" : underThousand(thousands) + " mille");
+    
+        if (unitsPart)
+            parts.push(underThousand(unitsPart));
+    
+        return parts.join(" ");
     }
-
-    if (n === 0) return "zéro";
-
-    let millions = Math.floor(n / 1_000_000);
-    let rest = n % 1_000_000;
-    let thousands = Math.floor(rest / 1000);
-    let unitsPart = rest % 1000;
-
-    let parts = [];
-    if (millions) parts.push(millions === 1 ? "un million" : underThousand(millions) + " millions");
-    if (thousands) parts.push(thousands === 1 ? "mille" : underThousand(thousands) + " mille");
-    if (unitsPart) parts.push(underThousand(unitsPart));
-
-    return parts.join(" ");
-}
-
-function convert() {
-    let val = document.getElementById("amount").value.trim();
-    if (!/^\d+$/.test(val)) {
-        document.getElementById("result").innerText = "请输入合法数字";
-        return;
+    
+    function convert() {
+        let val = document.getElementById("amount").value.trim();
+        if (!/^\d+$/.test(val)) {
+            document.getElementById("result").innerText = "请输入合法数字";
+            return;
+        }
+        let result = numberToFrench(parseInt(val, 10));
+        document.getElementById("result").innerText =
+            result.charAt(0).toUpperCase() + result.slice(1) + " de francs guinéens";
     }
-    let result = numberToFrench(parseInt(val));
-    document.getElementById("result").innerText = 
-        result.charAt(0).toUpperCase() + result.slice(1) + " de francs guinéens";
-}
-</script>
+    </script>
+    
 </body>
 </html>
